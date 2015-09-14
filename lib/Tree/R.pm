@@ -25,7 +25,7 @@ our @EXPORT = qw(
 
 );
 
-our $VERSION = '0.07';
+our $VERSION = '0.072';
 
 =pod
 
@@ -96,6 +96,10 @@ Copyright (C) 2005- by Ari Jolma
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of The Artistic License 2.0.
+
+=head1 REPOSITORY
+
+L<https://github.com/ajolma/Tree-R>
 
 =cut
 
