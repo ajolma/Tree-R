@@ -5,13 +5,25 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test::More tests => 16;
-BEGIN { use_ok('Tree::R') };
+use Test::More tests => 17;
+use vars qw/$warning/;
+BEGIN { 
+    use_ok('Tree::R');
+    $SIG{__WARN__} = sub {  $warning = "@_"; }
+};
 
 #########################
 
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
+
+{
+    my $rtree = Tree::R->new;
+    eval {
+        $rtree->query_point();
+    };
+    ok($warning eq '', "Empty tree should not issue any warnings (rt.cpan.org 57055).");
+}
 
 my %objects = (
 	       1 => [2,4,4,7],

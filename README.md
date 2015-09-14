@@ -19,5 +19,4 @@ COPYRIGHT AND LICENCE
 Copyright (C) 2005- by Ari Jolma
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.5 or,
-at your option, any later version of Perl 5 you may have available.
+it under the terms of The Artistic License 2.0.

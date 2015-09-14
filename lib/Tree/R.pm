@@ -1,10 +1,7 @@
 package Tree::R;
 
-use 5.005000;
 use strict;
 use warnings;
-
-use Data::Dumper;
 
 require Exporter;
 use AutoLoader qw(AUTOLOAD);
@@ -28,19 +25,19 @@ our @EXPORT = qw(
 	
 );
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =pod
 
 =head1 NAME
 
-Tree::R - Perl extension for the Rtree data structure and algorithms
+Tree::R - Perl extension for the R-tree data structure and algorithms
 
 =head1 SYNOPSIS
 
   use Tree::R;
 
-  my $rtree = new Tree::R;
+  my $rtree = Tree::R->new
 
   for my $object (@objects) {
       my @bbox = $object->bbox(); # (minx,miny,maxx,maxy)
@@ -86,22 +83,19 @@ efficient and robust access method for points and rectangles. Proc. of
 the 1990 ACM SIGMOD Internat. Conf. on Management of Data (1990),
 322--331.
 
-This module should be discussed on the freegis-list:
-http://intevation.de/mailman/listinfo/freegis-list
-
-http://www.tkk.fi/u/jolma/index.html
+The homepage of this module is on github:
+https://github.com/ajolma/Tree-R
 
 =head1 AUTHOR
 
-Ari Jolma, E<lt>ari.jolma at tkk.fiE<gt>
+Ari Jolma
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Ari Jolma
+Copyright (C) 2005- by Ari Jolma
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.5 or,
-at your option, any later version of Perl 5 you may have available.
+it under the terms of The Artistic License 2.0.
 
 =cut
 
@@ -122,6 +116,7 @@ sub new {
 
 sub objects {
     my ($self,$objects,$N) = @_;
+    return unless $self->{root};
     $N = $self->{root} unless $N;
     return unless $N;
     unless ($N->[0]) {
@@ -136,6 +131,7 @@ sub objects {
 
 sub query_point {
     my($self,$x,$y,$objects,$N) = @_;
+    return unless $self->{root};
     $N = $self->{root} unless $N;
     return unless $x >= $N->[2] and $x <= $N->[4] and $y >= $N->[3] and $y <= $N->[5];
     unless ($N->[0]) {
@@ -148,30 +144,11 @@ sub query_point {
     }
 }
 
-#recursive is buggy: deprecate
-sub query_completely_within_rect_recursive {
-    my($self,$minx,$miny,$maxx,$maxy,$objects,$N) = @_;
-    $N = $self->{root} unless $N;
-    return if 
-	$N->[2] > $maxx or # right
-	$N->[4] < $minx or # left
-	$N->[3] > $maxy or # above
-	$N->[5] < $miny; # below
-    unless ($N->[0]) {
-	push @$objects,$N->[1] if 
-	    $N->[2] >= $minx and $N->[4] <= $maxx and $N->[3] >= $miny and $N->[5] <= $maxy;
-    } else {
-	# check entries
-	for my $entry (@{$N->[1]}) {
-	    $self->query_completely_within_rect($minx,$miny,$maxx,$maxy,$objects,$entry);
-	}
-    }
-}
-
 #non-recursive from liuyi at cis.uab.edu
 sub query_completely_within_rect 
 {
     my($self,$minx,$miny,$maxx,$maxy,$objects,$Node) = @_;
+    return unless $self->{root};
     $Node = $self->{root} unless $Node;
 	my @entries;
 	push @entries,\$Node; 
@@ -209,31 +186,11 @@ sub query_completely_within_rect
 	return $objects;
 }
 
-# recursive is buggy: deprecate
-# N is not in rect if N is completely to the right|left|above|below of the rect
-# rename overlap with?
-sub query_partly_within_rect_recursive {
-    my($self,$minx,$miny,$maxx,$maxy,$objects,$N) = @_;
-    $N = $self->{root} unless $N;
-    return if 
-	$N->[2] > $maxx or # right
-	$N->[4] < $minx or # left
-	$N->[3] > $maxy or # above
-	$N->[5] < $miny; # below
-    unless ($N->[0]) {
-	push @$objects,$N->[1];
-    } else {
-	# check entries
-	for my $entry (@{$N->[1]}) {
-	    $self->query_partly_within_rect($minx,$miny,$maxx,$maxy,$objects,$entry);
-	}
-    }
-}
-
 #non-recursive from liuyi at cis.uab.edu
 sub query_partly_within_rect 
 {
     my($self,$minx,$miny,$maxx,$maxy,$objects,$Node) = @_;
+    return unless $self->{root};
     $Node = $self->{root} unless $Node;
 	my @entries;
 	push @entries,\$Node; 
@@ -357,6 +314,7 @@ sub remove {
 
 sub dump {
     my ($self,$N,$level) = @_;
+    return unless $self->{root};
     $N = $self->{root} unless $N;
     return unless $N;
     $level = 0 unless $level;
